@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <arpa/inet.h>
 #include <climits>
+#include <cstring>
 
 #define SERVER_PORT 7899
 
@@ -87,6 +88,8 @@ class Graph
 		new_edge->src = u;
 		new_edge->dest = v;
 		new_edge->weight = weight;
+		new_edge->seqnum = 0;
+
 		new_edge->src_ip_addr = new std::string(src_addr);
 		new_edge->dest_ip_addr = new std::string(dest_addr);
 
@@ -98,6 +101,7 @@ class Graph
 		new_edge2->src = v;
 		new_edge2->dest = u;
 		new_edge2->weight = weight;
+		new_edge2->seqnum = 0;
 		new_edge2->src_ip_addr = new std::string(dest_addr);
 		new_edge2->dest_ip_addr = new std::string(src_addr);
 		edge_list.push_back(new_edge2);
@@ -121,7 +125,7 @@ class Graph
 		for(std::vector<Node *>::iterator i=adj_list.begin(); i!=adj_list.end(); i++)
 		{
 			sorted_nodes.push_back(*i);
-			(*i)->distance=std::numeric_limits<uint32_t>::max();
+			(*i)->distance= (uint32_t) -1;//std::numeric_limits<uint32_t>::max();
 		}
 
 	    Node * src_node = adj_list[src];
