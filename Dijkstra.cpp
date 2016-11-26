@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <cstdint>
+#include <stdint.h>
 #include <arpa/inet.h>
 #include <climits>
 #include <cstring>
@@ -62,7 +62,7 @@ void install_route(std::string destination, std::string nexthop, bool qos_table)
 	if (qos_table) {
 		command += std::string(" table QoSRT");
 	}
-	//system(command.c_str());
+	system(command.c_str());
 	std::cout << command<< std::endl;
 }
 
@@ -256,9 +256,9 @@ class Graph
 
 struct lsa_packet {
 	uint32_t src_node_id;
-	uint32_t cost;
 	uint32_t dest_node_id;
 	uint32_t seq_num;
+	uint32_t cost;
 };
 
 Graph *construct_graph(std::ifstream &infile)
@@ -342,9 +342,18 @@ int main(){
 			lsa_to_be_sent.seq_num = htonl(seqnum++);
 			lsa_to_be_sent.src_node_id = htonl(node_id);
 			lsa_to_be_sent.cost = lsa_received.cost;
-			std::string src_addr("abcdefg");
 			//lsa_to_be_sent.cost = htonl(cost);
-			lsa_to_be_sent.dest_node_id = htonl(g->find_next_node_id(node_id, src_addr));
+			char src_addr_str[INET_ADDRSTRLEN];
+			struct in_addr src_addr;
+			src_addr.s_addr = ntohl(lsa_received.src_node_id);
+			inet_ntop(AF_INET, &(src_addr), src_addr_str, INET_ADDRSTRLEN);
+			std::cout << "Src_addr : " << src_addr_str;
+			std::string src_addr_str2(src_addr_str);
+
+			unsigned int dest_id = g->find_next_node_id(node_id, src_addr_str2);
+			lsa_to_be_sent.dest_node_id = htonl(dest_id);
+			g->modify_edge(node_id, dest_id, ntohl(lsa_received.cost));
+			g->install_route_table(node_id, true);
 
 			for (std::vector<string *>::iterator i= next_hops.begin(); i != next_hops.end(); i++) {
 				inet_pton(AF_INET, (*i)->c_str(), &(receiver_addr.sin_addr));
