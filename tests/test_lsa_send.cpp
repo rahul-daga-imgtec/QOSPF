@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
 	}
 	sendto(clientSocket, messageToSend, sizeof(messageToSend), 0, (struct sockaddr *)&serverAddr,sizeof(serverAddr));
 
-	printf("New LSA Sent with following Details");
-	printf("Node: %d\n",message[0]);
+	printf("New LSA Sent with following Details\n");
+	printf("Node: %s\n", argv[1]);
 	printf("Link Cost: %d\n",message[3]);
 
 }

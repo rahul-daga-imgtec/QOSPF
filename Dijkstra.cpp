@@ -194,10 +194,10 @@ class Graph
         return -1; // error
 	}
 
-	int find_next_hops(uint32_t src_id, std::vector<std::string *> ip_addrs) {
+	int find_next_hops(uint32_t src_id, std::vector<std::string *> *ip_addrs) {
 		Node *u = adj_list[src_id];
         for (std::vector< Edge * >::iterator  i = u->out_list.begin(); i != u->out_list.end(); ++i) {
-        	ip_addrs.push_back((*i)->dest_ip_addr);
+        	ip_addrs->push_back((*i)->dest_ip_addr);
         }
         return -1;
 	}
@@ -340,9 +340,11 @@ int main(){
 	node_file >> node_id;
     g->install_route_table(node_id, false);
 	std::vector<string *> next_hops;
-	g->find_next_hops(node_id, next_hops);
+	g->find_next_hops(node_id, &next_hops);
 	vector<uint32_t> seq_received(g->numNodes);
-
+	for (std::vector<string *>::iterator i= next_hops.begin(); i != next_hops.end(); i++) {
+		std::cout << "Next hop IP address: " << *(*i) << std::endl;
+	}
 
 	/*Create UDP socket*/
 	client_socket = socket(PF_INET, SOCK_DGRAM, 0);
@@ -360,21 +362,24 @@ int main(){
 		std::string sender_address(sender_addr);
 		std::cout<< "New LSA Received "  << sender_addr << std::endl;
 
-		if (client_addr.sin_addr.s_addr == INADDR_LOOPBACK) {
+		if (sender_address == "127.0.0.1") {
 			// timerlogic if not sending lsa
-			lsa_to_be_sent.seq_num = htonl(seqnum++);
+			lsa_to_be_sent.seq_num = htonl(++seqnum);
 			lsa_to_be_sent.src_node_id = htonl(node_id);
 			lsa_to_be_sent.cost = lsa_received.cost;
 			char src_addr_str[INET_ADDRSTRLEN];
 			struct in_addr src_addr;
 			src_addr.s_addr = ntohl(lsa_received.src_node_id);
 			inet_ntop(AF_INET, &(src_addr), src_addr_str, INET_ADDRSTRLEN);
-			std::cout << "Src_addr : " << src_addr_str;
+			uint32_t cost = ntohl(lsa_received.cost);
+			std::cout << "Src_addr : " << src_addr_str << std::endl;
+			std::cout << "Cost : " << cost << std::endl;
+
 			std::string src_addr_str2(src_addr_str);
 
 			unsigned int dest_id = g->find_next_node_id(node_id, src_addr_str2);
 			lsa_to_be_sent.dest_node_id = htonl(dest_id);
-			g->modify_edge(node_id, dest_id, ntohl(lsa_received.cost));
+			g->modify_edge(node_id, dest_id, cost);
 			g->install_route_table(node_id, true);
 
 			for (std::vector<string *>::iterator i= next_hops.begin(); i != next_hops.end(); i++) {
@@ -383,16 +388,16 @@ int main(){
 				std::cout << "Sending to:" << *(*i) << std::endl;
 			}
 			std::cout << "New LSA Sent with following Details" << std::endl;
-			std::cout << "Source Node: " << lsa_to_be_sent.src_node_id << std::endl;
-			std::cout << "Dest Node: " << lsa_to_be_sent.dest_node_id << std::endl;
-			std::cout << "Sequence Number: " << lsa_to_be_sent.seq_num << std::endl;
-			std::cout << "Cost: " << lsa_to_be_sent.cost << std::endl;
+			std::cout << "Source Node: " << node_id << std::endl;
+			std::cout << "Dest Node: " << dest_id << std::endl;
+			std::cout << "Sequence Number: " << seqnum << std::endl;
+			std::cout << "Cost: " << cost << std::endl;
 		} else {
 			//Extract the fields from Received LSA messages.
 			uint32_t src_id = ntohl(lsa_received.src_node_id);
 			uint32_t dest_id = ntohl(lsa_received.dest_node_id);
 			uint32_t cost = ntohl(lsa_received.cost);
-			uint32_t seqnum = ntohl(lsa_received.cost);
+			uint32_t seqnum = ntohl(lsa_received.seq_num);
 			std::cout << "Received LSA Details" << std::endl;
 			std::cout << "Source Node: " << src_id << std::endl;
 			std::cout << "Dest Node: " << dest_id << std::endl;
@@ -410,7 +415,7 @@ int main(){
 				}
 				inet_pton(AF_INET, (*i)->c_str(), &(receiver_addr.sin_addr));
 				sendto(client_socket, &lsa_received, sizeof(lsa_received), 0, (struct sockaddr *)&receiver_addr,sizeof(receiver_addr));
-				std::cout << "Sending to:" << *(*i) << std::endl;
+				std::cout << "Forwarding to:" << *(*i) << std::endl;
 			}
 		}
 	}
