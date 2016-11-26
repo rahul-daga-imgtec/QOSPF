@@ -14,6 +14,7 @@
 #include <climits>
 #include <cstring>
 #include <unistd.h>
+#include <signal.h>
 
 #define SERVER_PORT 7899
 
