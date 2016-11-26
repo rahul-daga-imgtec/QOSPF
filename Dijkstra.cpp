@@ -266,20 +266,16 @@ Graph *construct_graph(std::ifstream &infile)
 	std::string info, src_ip_addr, dst_ip_addr;
 	uint32_t num_of_nodes, num_of_links, src_node_id, dest_node_id;
 	infile >> info >> num_of_nodes;
-	std::cout << info << num_of_nodes << std::endl;
-
 	infile >> info >> num_of_links;
-	std::cout << info << num_of_links << std::endl;
 	infile.ignore();
 	getline(infile, info);
-	std::cout << info;
-
 	Graph *g = new Graph(num_of_nodes);
 
     for (uint32_t i = 0; i < num_of_links; i++) {
     	infile >> src_node_id >> src_ip_addr >> dest_node_id >> dst_ip_addr;
         g->insert_edge(src_node_id, src_ip_addr, dest_node_id, dst_ip_addr, 100);
-    	std::cout << " src_node_id " << src_node_id << " src_ip_addr " << src_ip_addr << " dest_node_id " << dest_node_id  << " dst_ip_addr " << dst_ip_addr << std::endl;
+    	/*std::cout << " src_node_id " << src_node_id << " src_ip_addr " << src_ip_addr <<
+    			" dest_node_id " << dest_node_id  << " dst_ip_addr " << dst_ip_addr << std::endl;*/
     }
     return g;
 }
