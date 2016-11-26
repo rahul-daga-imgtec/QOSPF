@@ -283,14 +283,26 @@ Graph *construct_graph(std::ifstream &infile)
 int create_server_socket(struct sockaddr_in *server_addr) {
 	int server_socket = socket(PF_INET, SOCK_DGRAM, 0);
 
+	if (server_socket < 0) {
+		std::cerr << "Error opening socket";
+		exit(1);
+	}
 	/*Configure settings in address struct*/
 	server_addr->sin_family = AF_INET;
 	server_addr->sin_port = htons(SERVER_PORT);
 	server_addr->sin_addr.s_addr = INADDR_ANY;
 	memset(server_addr->sin_zero, 0, sizeof(server_addr->sin_zero));
+	int enable = 1;
+	if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+	    std::cerr << "setsockopt failed";
+	    exit(1);
+	}
 
 	/*Bind socket with address struct*/
-	bind(server_socket, (struct sockaddr *) &server_addr, sizeof(server_addr));
+	if (bind(server_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
+	    std::cerr << "Bind failed";
+	    exit(1);
+	}
 	return server_socket;
 }
 
@@ -338,7 +350,6 @@ int main(){
 			lsa_to_be_sent.seq_num = htonl(seqnum++);
 			lsa_to_be_sent.src_node_id = htonl(node_id);
 			lsa_to_be_sent.cost = lsa_received.cost;
-			//lsa_to_be_sent.cost = htonl(cost);
 			char src_addr_str[INET_ADDRSTRLEN];
 			struct in_addr src_addr;
 			src_addr.s_addr = ntohl(lsa_received.src_node_id);
