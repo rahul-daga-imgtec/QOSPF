@@ -11,6 +11,8 @@
 #include <netinet/in.h>
 #include <cstdint>
 #include <arpa/inet.h>
+#include <climits>
+
 #define SERVER_PORT 7899
 
 using namespace std;
@@ -285,7 +287,7 @@ int create_server_socket(struct sockaddr_in *server_addr) {
 	server_addr->sin_family = AF_INET;
 	server_addr->sin_port = htons(SERVER_PORT);
 	server_addr->sin_addr.s_addr = INADDR_ANY;
-	memset(server_addr->sin_zero, 0, sizeof server_addr->sin_zero);
+	memset(server_addr->sin_zero, 0, sizeof(server_addr->sin_zero));
 
 	/*Bind socket with address struct*/
 	bind(server_socket, (struct sockaddr *) &server_addr, sizeof(server_addr));
@@ -321,7 +323,7 @@ int main(){
 
 	receiver_addr.sin_family = AF_INET;
 	receiver_addr.sin_port = htons(SERVER_PORT);
-	memset(receiver_addr.sin_zero, '\0', sizeof receiver_addr.sin_zero);
+	memset(receiver_addr.sin_zero, 0, sizeof(receiver_addr.sin_zero));
 
 	while(1) {
 		recvfrom(server_socket, (void *)&lsa_received, sizeof(struct lsa_packet), 0, (struct sockaddr *)&client_addr, (unsigned int *)&addr_size);
@@ -336,7 +338,7 @@ int main(){
 			lsa_to_be_sent.seq_num = htonl(seqnum++);
 			lsa_to_be_sent.src_node_id = htonl(node_id);
 			lsa_to_be_sent.cost = lsa_received.cost;
-			//std::string src_addr("abcdefg");
+			std::string src_addr("abcdefg");
 			//lsa_to_be_sent.cost = htonl(cost);
 			lsa_to_be_sent.dest_node_id = htonl(g->find_next_node_id(node_id, src_addr));
 
