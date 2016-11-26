@@ -15,6 +15,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
 
 #define SERVER_PORT 7899
 
@@ -302,7 +303,7 @@ int create_server_socket(struct sockaddr_in *server_addr) {
 
 	/*Bind socket with address struct*/
 	if (bind(server_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
-	    std::cerr << "Bind failed";
+	    std::cerr << "Bind failed" << strerror(errno);
 	    exit(1);
 	}
 	return server_socket;
