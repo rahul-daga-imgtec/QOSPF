@@ -212,8 +212,11 @@ class Graph
 	}
 
 
-	bool validate_seq(uint32_t src_id, uint32_t dest_id, uint32_t seqnum) {
+	bool validate_seq(uint32_t self_id, uint32_t src_id, uint32_t dest_id, uint32_t seqnum) {
 		Node *u = adj_list[src_id];
+		if (self_id == src_id) {
+			return false;
+		}
         for (std::vector< Edge * >::iterator  i = u->out_list.begin(); i != u->out_list.end(); ++i) {
         	if (((*i)->dest)->id == dest_id) {
         		int last_recv_seq = (*i)->seqnum;
@@ -403,7 +406,7 @@ int main(){
 			std::cout << "Dest Node: " << dest_id << std::endl;
 			std::cout << "Sequence Number: " << seqnum << std::endl;
 			std::cout << "Cost: " << cost << std::endl;
-			if (!g->validate_seq(src_id, dest_id, seqnum)) {
+			if (!g->validate_seq(node_id, src_id, dest_id, seqnum)) {
 				continue;
 			}
 
