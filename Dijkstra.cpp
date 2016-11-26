@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <climits>
 #include <cstring>
+#include <unistd.h>
 
 #define SERVER_PORT 7899
 
@@ -306,13 +307,25 @@ int create_server_socket(struct sockaddr_in *server_addr) {
 	return server_socket;
 }
 
+int server_socket;
+
+/* Signal Handler for SIGINT */
+void sigintHandler(int sig_num)
+{
+    std::cout << ("Closing socket\n");
+    fflush(stdout);
+    close(server_socket);
+    exit(1);
+}
+
 int main(){
-	int server_socket, client_socket;
+	int client_socket;
 	struct lsa_packet lsa_received, lsa_to_be_sent;
 	struct sockaddr_in server_addr, client_addr, receiver_addr;
 	size_t addr_size = sizeof(client_addr);
 	uint32_t seqnum = 0;
 
+    signal(SIGINT, sigintHandler);
 
 	std::ifstream topology_file("topology.txt");
 	std::ifstream node_file("node_id.txt");
