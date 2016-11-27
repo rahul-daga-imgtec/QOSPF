@@ -14,7 +14,6 @@
 int main(int argc, char *argv[])
 {
 	struct in_addr a;
-	printf("YOU ARE IN SEND LSA\n");
 	int clientSocket;
 	int messageToSend[4];
 	int message[4];
@@ -24,7 +23,6 @@ int main(int argc, char *argv[])
 	//converting interface IP from str to integer
 
 	inet_pton(AF_INET, argv[1], &a);
-	printf("%d\n", a.s_addr);
 
 	/*Create UDP socket*/
 	clientSocket = socket(PF_INET, SOCK_DGRAM, 0);
