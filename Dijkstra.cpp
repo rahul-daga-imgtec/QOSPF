@@ -18,6 +18,7 @@
 #include <errno.h>
 
 #define SERVER_PORT 7899
+#define DEFAULT_COST 10
 
 using namespace std;
 
@@ -279,7 +280,7 @@ Graph *construct_graph(std::ifstream &infile)
 
     for (uint32_t i = 0; i < num_of_links; i++) {
     	infile >> src_node_id >> src_ip_addr >> dest_node_id >> dst_ip_addr;
-        g->insert_edge(src_node_id, src_ip_addr, dest_node_id, dst_ip_addr, 100);
+        g->insert_edge(src_node_id, src_ip_addr, dest_node_id, dst_ip_addr, DEFAULT_COST);
     	/*std::cout << " src_node_id " << src_node_id << " src_ip_addr " << src_ip_addr <<
     			" dest_node_id " << dest_node_id  << " dst_ip_addr " << dst_ip_addr << std::endl;*/
     }
