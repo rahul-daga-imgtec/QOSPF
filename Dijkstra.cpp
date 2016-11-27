@@ -59,6 +59,9 @@ struct sort_dist {
 
 void install_route(std::string destination, std::string nexthop, bool qos_table)
 {
+	if (destination == nexthop) {
+		return;
+	}
 	std::string command("sudo ip route add ");
 	command += destination;
 	command += std::string(" via ");
