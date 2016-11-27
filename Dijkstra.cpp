@@ -341,7 +341,9 @@ int main(){
 	Graph *g = construct_graph(topology_file);
 	uint32_t node_id;
 	node_file >> node_id;
-    g->install_route_table(node_id, false);
+	g->install_route_table(node_id, false);
+	g->install_route_table(node_id, true);
+
 	std::vector<string *> next_hops;
 	g->find_next_hops(node_id, &next_hops);
 	vector<uint32_t> seq_received(g->numNodes);
