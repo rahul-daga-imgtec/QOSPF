@@ -262,6 +262,25 @@ class Graph
         }
 	}
 
+
+	void install_all_routes(uint32_t src, bool qos) {
+		std::vector<Node *> hosts;
+	    find_shortest_path(src);
+		//find_hosts(hosts);
+		flush_qos_table();
+        for (std::vector< Node * >::iterator  i = adj_list.begin(); i != adj_list.end(); ++i) {
+        	uint32_t node_id = (*i)->id;
+        	if (node_id == src) {
+        		continue;
+        	}
+    		std::string *next_hop_addr = find_next_hop_addr(node_id);
+            for (std::vector< Edge * >::iterator  j = (*i)->out_list.begin(); j != (*i)->out_list.end(); ++j) {
+            	std::string *dest_addr = (*j)->src_ip_addr;
+            	install_route(*dest_addr, *next_hop_addr, qos);
+            }
+        }
+	}
+
 };
 
 struct lsa_packet {
@@ -345,8 +364,8 @@ int main(){
 	Graph *g = construct_graph(topology_file);
 	uint32_t node_id;
 	node_file >> node_id;
-	g->install_route_table(node_id, false);
-	g->install_route_table(node_id, true);
+	g->install_all_routes(node_id, false);
+	g->install_all_routes(node_id, true);
 
 	std::vector<string *> next_hops;
 	g->find_next_hops(node_id, &next_hops);
@@ -389,7 +408,7 @@ int main(){
 			unsigned int dest_id = g->find_next_node_id(node_id, src_addr_str2);
 			lsa_to_be_sent.dest_node_id = htonl(dest_id);
 			g->modify_edge(node_id, dest_id, cost);
-			g->install_route_table(node_id, true);
+			g->install_all_routes(node_id, true);
 
 			for (std::vector<string *>::iterator i= next_hops.begin(); i != next_hops.end(); i++) {
 				inet_pton(AF_INET, (*i)->c_str(), &(receiver_addr.sin_addr));
@@ -417,7 +436,7 @@ int main(){
 			}
 
 			g->modify_edge(src_id, dest_id, cost);
-			g->install_route_table(node_id, true);
+			g->install_all_routes(node_id, true);
 			for (std::vector<string *>::iterator i= next_hops.begin(); i != next_hops.end(); i++) {
 				if (sender_address == *(*i)) {
 					continue;
