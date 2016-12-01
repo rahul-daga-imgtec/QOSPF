@@ -1,6 +1,5 @@
 number_of_nodes 14
 number_of_links 15
-
 Src_Node_ID Src_adrs       Dst_Node_ID   Dst_adrs
 0           192.168.1.1     1            192.168.1.2      
 1           192.168.2.1     2            192.168.2.2
