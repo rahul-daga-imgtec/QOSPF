@@ -29,14 +29,14 @@
 #define CongestionWeight 500
 
 //Defining congestion windows.
-#define Window1u 40.0
-#define Window2u 65.0
-#define Window3u 90.0
+#define Window1u 25.0
+#define Window2u 45.0
+#define Window3u 80.0
 #define Window4u 110.0
 #define Window1l 0.0
-#define Window2l 30.0
-#define Window3l 55.0
-#define Window4l 80.0
+#define Window2l 15.0
+#define Window3l 40.0
+#define Window4l 70.0
 
 #define guardband 2
 
